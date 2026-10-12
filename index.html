@@ -1,0 +1,731 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- CONFIGURAÇÕES -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#173f32">
+
+    <meta
+        name="description"
+        content="Traduguará: dicionário e tradutor offline Guarani e Português"
+    >
+     
+	<link
+    rel="icon"
+    href="icon-192.png"
+    type="image/jpeg"
+>
+	 
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <title>Traduguará • Guarani e Português</title>
+
+    <style>
+        /* ========================================
+           1. VARIÁVEIS E CONFIGURAÇÕES GERAIS
+        ======================================== */
+
+        :root {
+            --green: #173f32;
+            --light: #f7f1e5;
+            --gold: #dba85d;
+            --ink: #20392e;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, "Segoe UI", sans-serif;
+            background: var(--light);
+            color: var(--ink);
+        }
+
+        select,
+        input,
+        textarea,
+        button {
+            font: inherit;
+        }
+
+        /* ========================================
+           2. CABEÇALHO
+        ======================================== */
+
+        header {
+            background: var(--green);
+            color: white;
+            padding: 22px max(22px, calc((100vw - 1080px) / 2));
+            border-bottom: 7px solid var(--gold);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            font-size: 29px;
+            font-weight: 850;
+            letter-spacing: -1px;
+        }
+
+        .brand span {
+            color: var(--gold);
+        }
+
+        header p {
+            margin: 4px 0 0;
+            color: #d9e7d9;
+        }
+
+        /* ========================================
+           3. BOTÃO DE INSTALAÇÃO PWA
+        ======================================== */
+
+        .install-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 11px;
+
+            background: #e8b45c;
+            color: #173f32;
+
+            border: 2px solid #ffe3a5;
+            border-radius: 12px;
+
+            box-shadow:
+                0 7px 0 #102f26,
+                0 12px 26px #0005;
+
+            font-size: 17px;
+            font-weight: 900;
+            letter-spacing: 0.3px;
+
+            padding: 16px 24px;
+            min-height: 58px;
+
+            cursor: pointer;
+        }
+
+        .install-btn:hover {
+            background: #ffd183;
+            transform: translateY(-2px);
+        }
+
+        .install-btn:focus-visible {
+            outline: 3px solid white;
+            outline-offset: 4px;
+        }
+
+        .install-help {
+            background: #fff7e7;
+            color: #263e2c;
+
+            border: 1px solid #e4c488;
+            border-radius: 14px;
+
+            padding: 18px;
+            margin-top: 16px;
+            line-height: 1.6;
+        }
+
+        .install-help[hidden] {
+            display: none;
+        }
+
+        /* ========================================
+           4. ELEMENTOS DECORATIVOS
+        ======================================== */
+
+        .motif {
+            height: 12px;
+
+            background: repeating-linear-gradient(
+                90deg,
+                #b77443 0 13px,
+                #f1c986 13px 20px,
+                #173f32 20px 33px,
+                #f1c986 33px 40px
+            );
+        }
+
+        .pill {
+            display: inline-block;
+            background: #ffffff20;
+            color: #ffe2a8;
+
+            padding: 8px 12px;
+            border-radius: 30px;
+            font-size: 13px;
+        }
+
+        /* ========================================
+           5. CONTEÚDO PRINCIPAL
+        ======================================== */
+
+        main {
+            max-width: 1080px;
+            margin: auto;
+            padding: 28px 18px 80px;
+        }
+
+        .hero {
+            background: linear-gradient(
+                120deg,
+                #1c4a39,
+                #315f45
+            );
+
+            border-radius: 22px;
+            padding: 32px;
+
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: "◇ ◆ ◇ ◆ ◇";
+            position: absolute;
+
+            right: 20px;
+            top: 25px;
+
+            color: #dba85d66;
+            font-size: 38px;
+            writing-mode: vertical-rl;
+        }
+
+        .hero h1 {
+            font-size: clamp(28px, 5vw, 45px);
+            margin: 0 0 8px;
+        }
+
+        .hero p {
+            max-width: 550px;
+            color: #e5efe5;
+            line-height: 1.6;
+        }
+
+        /* ========================================
+           6. PAINÉIS
+        ======================================== */
+
+        .panel {
+            background: #fff;
+
+            border: 1px solid #e8dfce;
+            border-radius: 20px;
+
+            padding: 24px;
+            margin-top: 20px;
+
+            box-shadow: 0 8px 24px #263e2c0a;
+        }
+
+        h2 {
+            margin: 0 0 17px;
+            font-size: 23px;
+        }
+
+        .note {
+            font-size: 13px;
+            color: #62776a;
+            line-height: 1.5;
+        }
+
+        .status {
+            min-height: 20px;
+            color: #536b58;
+            font-size: 14px;
+        }
+
+        /* ========================================
+           7. FORMULÁRIOS
+        ======================================== */
+
+        select,
+        input,
+        textarea {
+            border: 1px solid #cdd7ce;
+            border-radius: 12px;
+
+            padding: 12px;
+            background: #fff;
+            color: #20392e;
+        }
+
+        select {
+            flex: 1;
+            min-width: 160px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 155px;
+
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .label {
+            display: block;
+            font-weight: 750;
+            margin-bottom: 9px;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .formgrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+        }
+
+        .formgrid input {
+            min-width: 0;
+        }
+
+        /* ========================================
+           8. BOTÕES
+        ======================================== */
+
+        button {
+            border: 0;
+            border-radius: 12px;
+
+            padding: 12px 17px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        button.primary {
+            background: var(--green);
+            color: white;
+        }
+
+        button.secondary {
+            background: #e9efe9;
+            color: var(--green);
+        }
+
+        button:hover {
+            filter: brightness(0.95);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        /* ========================================
+           9. TRADUTOR
+        ======================================== */
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .result {
+            background: #f3f7f2;
+        }
+
+        /* ========================================
+           10. DICIONÁRIO
+        ======================================== */
+
+        .search {
+            width: 100%;
+        }
+
+        .dictionary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .word {
+            background: #f8f7f1;
+            border: 1px solid #e6e5da;
+            border-radius: 12px;
+            padding: 13px;
+        }
+
+        .word strong {
+            display: block;
+            color: var(--green);
+        }
+
+        .word small {
+            color: #718075;
+        }
+
+        /* ========================================
+           11. RODAPÉ
+        ======================================== */
+
+        footer {
+            text-align: center;
+            color: #607369;
+            padding: 24px;
+            font-size: 13px;
+        }
+
+        /* ========================================
+           12. RESPONSIVIDADE
+        ======================================== */
+
+        @media (max-width: 650px) {
+            .grid,
+            .dictionary,
+            .formgrid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 25px;
+            }
+
+            .panel {
+                padding: 18px;
+            }
+
+            .hero::after {
+                opacity: 0.3;
+            }
+
+            .install-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ELEMENTO DECORATIVO -->
+    <div class="motif"></div>
+
+    <!-- ========================================
+         CABEÇALHO
+    ======================================== -->
+
+    <header>
+        <div class="header-inner">
+
+            <div>
+                <div class="brand">
+                    TRADU<span>GUARÁ</span> ◈
+                </div>
+
+                <p>Língua, memória e tecnologia</p>
+            </div>
+
+            <button
+                id="installApp"
+                class="install-btn"
+                type="button"
+                aria-controls="installHelp"
+            >
+                ⬇ INSTALAR APLICATIVO
+            </button>
+
+        </div>
+
+        <div
+            id="installHelp"
+            class="install-help"
+            role="status"
+            hidden
+        ></div>
+    </header>
+
+    <!-- ========================================
+         CONTEÚDO PRINCIPAL
+    ======================================== -->
+
+    <main>
+
+        <!-- APRESENTAÇÃO -->
+        <section class="hero">
+
+            <span class="pill">
+                ◈ Dicionário local • Funciona offline
+            </span>
+
+            <h1>
+                Duas línguas.<br>
+                Uma ponte cultural.
+            </h1>
+
+            <p>
+                Explore palavras e expressões em guarani
+                e português, preserve novos termos no seu
+                dispositivo e leve o conhecimento com você.
+            </p>
+
+        </section>
+
+        <!-- ====================================
+             TRADUTOR
+        ==================================== -->
+
+        <section class="panel">
+
+            <h2>Tradutor</h2>
+
+            <div class="toolbar">
+
+                <select
+                    id="from"
+                    aria-label="Idioma de origem"
+                >
+                    <option value="gn">Guarani</option>
+                    <option value="pt">Português</option>
+                </select>
+
+                <button
+                    class="secondary"
+                    id="swap"
+                    aria-label="Inverter idiomas"
+                >
+                    ⇄ Inverter
+                </button>
+
+                <select
+                    id="to"
+                    aria-label="Idioma de destino"
+                    disabled
+                >
+                    <option>Português</option>
+                </select>
+
+            </div>
+
+            <div class="grid">
+
+                <!-- TEXTO ORIGINAL -->
+                <div>
+                    <label class="label" for="source">
+                        Texto original
+                    </label>
+
+                    <textarea
+                        id="source"
+                        placeholder="Escreva aqui…"
+                    ></textarea>
+                </div>
+
+                <!-- RESULTADO -->
+                <div>
+                    <label class="label" for="output">
+                        Tradução aproximada
+                    </label>
+
+                    <textarea
+                        id="output"
+                        class="result"
+                        readonly
+                        placeholder="Sua tradução aparecerá aqui…"
+                    ></textarea>
+                </div>
+
+            </div>
+
+            <div class="actions">
+
+                <button class="primary" id="translate">
+                    Traduzir texto
+                </button>
+
+                <button class="secondary" id="copy">
+                    Copiar tradução
+                </button>
+
+                <button class="secondary" id="clear">
+                    Limpar
+                </button>
+
+            </div>
+
+            <p class="note">
+                Tradução experimental por correspondência de termos.
+                Palavras desconhecidas são mantidas; a gramática
+                e o contexto podem não ser preservados.
+            </p>
+
+            <p
+                class="status"
+                id="status"
+                role="status"
+            ></p>
+
+        </section>
+
+        <!-- ====================================
+             DICIONÁRIO INTERNO
+        ==================================== -->
+
+        <section class="panel">
+
+            <h2>Dicionário interno</h2>
+
+            <input
+                id="search"
+                class="search"
+                type="search"
+                placeholder="Pesquisar em guarani ou português…"
+                aria-label="Pesquisar no dicionário"
+            >
+
+            <div
+                id="entries"
+                class="dictionary"
+            ></div>
+
+            <p
+                id="count"
+                class="note"
+            ></p>
+
+        </section>
+
+        <!-- ====================================
+             ADICIONAR VOCABULÁRIO
+        ==================================== -->
+
+        <section class="panel">
+
+            <h2>Adicionar vocabulário</h2>
+
+            <p class="note">
+                Suas palavras ficam salvas neste navegador,
+                mesmo sem internet. Confira a tradução com
+                falantes e fontes confiáveis.
+            </p>
+
+            <div class="formgrid">
+
+                <input
+                    id="gnWord"
+                    type="text"
+                    placeholder="Palavra em guarani"
+                    aria-label="Palavra em guarani"
+                >
+
+                <input
+                    id="ptWord"
+                    type="text"
+                    placeholder="Tradução em português"
+                    aria-label="Tradução em português"
+                >
+
+                <button
+                    class="primary"
+                    id="add"
+                >
+                    Adicionar
+                </button>
+
+            </div>
+
+            <div class="actions">
+
+                <button
+                    class="secondary"
+                    id="export"
+                >
+                    Exportar dicionário JSON
+                </button>
+
+                <button
+                    class="secondary"
+                    id="importButton"
+                >
+                    Importar JSON
+                </button>
+
+                <input
+                    type="file"
+                    id="importFile"
+                    accept="application/json,.json"
+                    hidden
+                >
+
+            </div>
+
+            <p
+                class="status"
+                id="dictStatus"
+                role="status"
+            ></p>
+
+        </section>
+
+        <!-- ====================================
+             HISTÓRICO DE TRADUÇÕES
+        ==================================== -->
+
+        <section class="panel">
+
+            <h2>Traduções recentes</h2>
+
+            <div
+                id="history"
+                class="note"
+            >
+                Nenhuma tradução ainda.
+            </div>
+
+            <div class="actions">
+
+                <button
+                    class="secondary"
+                    id="clearHistory"
+                >
+                    Limpar histórico
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ========================================
+         RODAPÉ
+    ======================================== -->
+
+    <footer>
+        Traduguará • Tecnologia a serviço das línguas indígenas
+        • Vocabulário inicial sujeito a revisão linguística
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script src="app.js" defer></script>
+
+</body>
+</html>
